@@ -37,12 +37,13 @@ export default function TasksPage() {
         })
         return;
     }
-    if (optimisticCompletedTasks.includes(task.id)) return;
+    if (userProfile?.completedTasks?.includes(task.id)) return;
 
     setPendingTaskId(task.id);
     startTransition(async () => {
       addOptimisticTask(task.id);
       const result = await completeTaskAction({ taskId: task.id, reward: task.reward, userId: user.uid });
+      
       if (result?.message && result?.taskId) {
         toast({
           title: 'Task Completed!',
@@ -50,9 +51,9 @@ export default function TasksPage() {
         });
       } else if (result?.message) {
         toast({
-            title: 'Error',
+            title: result.message === 'Task already completed.' ? 'Already Completed' : 'Error',
             description: result.message,
-            variant: 'destructive',
+            variant: result.message === 'Task already completed.' ? 'default' : 'destructive',
         })
       }
       setPendingTaskId(null);
@@ -67,12 +68,14 @@ export default function TasksPage() {
       return <div>Loading...</div>
   }
 
+  const completedTasks = userProfile?.completedTasks || [];
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="font-headline text-3xl md:text-4xl font-bold mb-8">Airdrop Tasks</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {allTasks.map((task) => {
-          const isCompleted = optimisticCompletedTasks.includes(task.id);
+          const isCompleted = optimisticCompletedTasks.includes(task.id) || completedTasks.includes(task.id);
           const isTaskPending = pendingTaskId === task.id && isPending;
 
           return (
