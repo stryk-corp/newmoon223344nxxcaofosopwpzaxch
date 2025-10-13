@@ -9,10 +9,33 @@ import { useCollection } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { User } from '@/lib/types';
 import { useFirestore } from '@/firebase';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { ShieldAlert } from 'lucide-react';
+
+const ADMIN_WALLET_ADDRESS = 'CyXGxS6Yj94rF2Qu7KiJtvXMcap9CfJsoVcnPNGgeDpC';
 
 export default function AdminPage() {
   const firestore = useFirestore();
+  const { publicKey } = useWallet();
   const { data: users, loading } = useCollection<User>(firestore ? collection(firestore, 'users') : null);
+
+  const isAdmin = publicKey && publicKey.toBase58() === ADMIN_WALLET_ADDRESS;
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto p-4 md:p-8 flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <Card className="max-w-md w-full">
+          <CardHeader className="text-center">
+            <div className="mx-auto bg-destructive/20 rounded-full p-3 w-fit">
+              <ShieldAlert className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle className="mt-4">Access Denied</CardTitle>
+            <CardDescription>You do not have permission to view this page.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
 
   if (loading) {
     return <div>Loading...</div>

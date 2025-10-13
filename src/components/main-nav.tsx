@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useMemo } from 'react';
 
 import { navLinks } from '@/lib/nav-links';
 import { cn } from '@/lib/utils';
@@ -16,9 +18,20 @@ import {
 import { Icon } from '@/components/icons';
 import { StrykLogo } from '@/components/logo';
 
+const ADMIN_WALLET_ADDRESS = 'CyXGxS6Yj94rF2Qu7KiJtvXMcap9CfJsoVcnPNGgeDpC';
+
 export function MainNav() {
   const pathname = usePathname();
   const { state } = useSidebar();
+  const { publicKey } = useWallet();
+
+  const visibleNavLinks = useMemo(() => {
+    const isAdmin = publicKey && publicKey.toBase58() === ADMIN_WALLET_ADDRESS;
+    if (isAdmin) {
+      return navLinks;
+    }
+    return navLinks.filter((link) => link.id !== 'admin');
+  }, [publicKey]);
 
   return (
     <>
@@ -45,7 +58,7 @@ export function MainNav() {
       </SidebarHeader>
 
       <SidebarMenu className="flex-1">
-        {navLinks.map((link) => (
+        {visibleNavLinks.map((link) => (
           <SidebarMenuItem key={link.id}>
             <SidebarMenuButton
               asChild
