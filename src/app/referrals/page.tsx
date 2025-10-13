@@ -2,21 +2,34 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { users } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Check, Clipboard, Gift } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ReferralList } from '@/components/referrals/referral-list';
 
+// This will be replaced with Firestore access
+const user = {
+    id: 'usr_4',
+    name: 'AdminUser',
+    avatarUrl: 'https://picsum.photos/seed/avatar4/100/100',
+    balance: 540321,
+    tier: 'Silver',
+    ipAddress: '10.0.0.1',
+    status: 'active',
+    miningActivity: [],
+    referralCode: 'REF-ADMIN',
+  };
+const users: any[] = [];
+
+
 export default function ReferralsPage() {
-  const user = users[3]; // Using 'AdminUser' as the example logged-in user
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const referralLink = `https://mine.drstryk.com/join?ref=${user.referralCode}`;
 
   // This is mock data. In a real app, you'd fetch this.
-  const referredUsers = [users[0], users[1], users[2]];
+  const referredUsers = users.slice(0,3);
 
   const handleCopyReferral = () => {
     navigator.clipboard.writeText(referralLink);

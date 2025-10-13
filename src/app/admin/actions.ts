@@ -1,8 +1,11 @@
 'use server';
 
 import { detectFraud } from '@/ai/flows/fraud-detection';
-import { users } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
+
+// This will be replaced with Firestore access
+const users: any[] = [];
+
 
 export async function checkFraudAction(userId: string) {
   try {

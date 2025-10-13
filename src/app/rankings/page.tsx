@@ -1,5 +1,8 @@
-import { users } from '@/lib/data';
 import { Leaderboard } from '@/components/rankings/leaderboard';
+
+// This will be replaced with Firestore access
+const users: any[] = [];
+
 
 export default function RankingsPage() {
   const sortedUsers = [...users].sort((a, b) => b.balance - a.balance);

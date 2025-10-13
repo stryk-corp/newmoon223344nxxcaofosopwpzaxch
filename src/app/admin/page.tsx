@@ -1,9 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserTable } from '@/components/admin/user-table';
-import { users } from '@/lib/data';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+
+// This will be replaced with Firestore access
+const users: any[] = [];
 
 export default function AdminPage() {
   const allUsers = [...users];

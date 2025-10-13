@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile in the application.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The user's display name or wallet address."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's avatar image."
+        },
+        "balance": {
+          "type": "number",
+          "description": "The user's current token balance."
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["Bronze", "Silver", "Gold", "Platinum", "Diamond"],
+          "description": "The user's current tier."
+        },
+        "ipAddress": {
+          "type": "string",
+          "format": "ipv4",
+          "description": "The last known IP address of the user."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "suspended", "banned"],
+          "description": "The user's account status."
+        },
+        "suspensionEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date when the user's suspension ends."
+        },
+        "miningActivity": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Timestamps of user's mining activities."
+        },
+        "referralCode": {
+          "type": "string",
+          "description": "The user's unique referral code."
+        }
+      },
+      "required": ["name", "balance", "tier", "ipAddress", "status", "referralCode"]
+    }
+  },
+  "auth": {
+    "providers": ["solana"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores public user profile data, keyed by user ID."
+    }
+  }
+}

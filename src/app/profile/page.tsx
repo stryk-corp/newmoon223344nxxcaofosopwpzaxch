@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { users } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Check, Clipboard, Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -12,8 +11,20 @@ import { tiers } from '@/lib/tiers';
 import type { TierName } from '@/lib/types';
 import { StrykLogo } from '@/components/logo';
 
+// This will be replaced with Firestore access
+const user = {
+    id: 'usr_4',
+    name: 'AdminUser',
+    avatarUrl: 'https://picsum.photos/seed/avatar4/100/100',
+    balance: 540321,
+    tier: 'Silver',
+    ipAddress: '10.0.0.1',
+    status: 'active',
+    miningActivity: [],
+    referralCode: 'REF-ADMIN',
+  };
+
 export default function ProfilePage() {
-  const user = users[3]; // Using 'AdminUser' as the example logged-in user
   const [wallet, setWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
@@ -29,7 +40,7 @@ export default function ProfilePage() {
     if (user.name === 'AdminUser') {
         setWallet('admin.wallet.connected');
     } else {
-        const fullWallet = `4qaFa3W3Nq2JpLwG7h7fG${user.id.slice(-5)}`; // example full address
+        const fullWallet = `4qaFa3W3Nq2JpLwG7h7fG...`; // example full address
         setWallet(fullWallet);
     }
   };

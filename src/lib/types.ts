@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type TierName = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
 
 export type Tier = {
@@ -5,18 +7,21 @@ export type Tier = {
   maxBalance: number;
 };
 
-export type User = {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  balance: number;
-  tier: TierName;
-  ipAddress: string;
-  status: 'active' | 'suspended' | 'banned';
-  suspensionEndDate?: string;
-  miningActivity: number[]; // timestamps
-  referralCode: string;
-};
+export const UserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  avatarUrl: z.string().url(),
+  balance: z.number(),
+  tier: z.enum(['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond']),
+  ipAddress: z.string(),
+  status: z.enum(['active', 'suspended', 'banned']),
+  suspensionEndDate: z.string().optional(),
+  miningActivity: z.array(z.number()),
+  referralCode: z.string(),
+});
+
+export type User = z.infer<typeof UserSchema>;
+
 
 export type Task = {
   id: string;
