@@ -3,7 +3,7 @@ import type { User } from '@/lib/types';
 export const users: User[] = [
   {
     id: 'usr_1',
-    name: 'ByteMiner',
+    name: '4qaF...h7fG',
     avatarUrl: 'https://picsum.photos/seed/avatar1/100/100',
     balance: 1250340,
     tier: 'Diamond',
@@ -14,7 +14,7 @@ export const users: User[] = [
   },
   {
     id: 'usr_2',
-    name: 'QuantumLeap',
+    name: 'E1iu...tHj',
     avatarUrl: 'https://picsum.photos/seed/avatar2/100/100',
     balance: 980210,
     tier: 'Platinum',
@@ -25,7 +25,7 @@ export const users: User[] = [
   },
   {
     id: 'usr_3',
-    name: 'CypherDigger',
+    name: '9sK2...PqR',
     avatarUrl: 'https://picsum.photos/seed/avatar3/100/100',
     balance: 765430,
     tier: 'Gold',
@@ -47,7 +47,7 @@ export const users: User[] = [
   },
   {
     id: 'usr_5',
-    name: 'GlitchBot',
+    name: 'G1it...BxV',
     avatarUrl: 'https://picsum.photos/seed/avatar5/100/100',
     balance: 320190,
     tier: 'Silver',
@@ -59,7 +59,7 @@ export const users: User[] = [
   },
   {
     id: 'usr_6',
-    name: 'ZeroCool',
+    name: 'Zer0...oL',
     avatarUrl: 'https://picsum.photos/seed/avatar6/100/100',
     balance: 150870,
     tier: 'Bronze',
@@ -70,7 +70,7 @@ export const users: User[] = [
   },
     {
     id: 'usr_7',
-    name: 'CheatCode',
+    name: 'Chet...de',
     avatarUrl: 'https://picsum.photos/seed/avatar7/100/100',
     balance: 9999999,
     tier: 'Diamond',

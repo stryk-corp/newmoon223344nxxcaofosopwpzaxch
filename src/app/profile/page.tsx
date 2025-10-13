@@ -24,7 +24,14 @@ export default function ProfilePage() {
   }, [user.balance]);
 
   const handleConnectWallet = () => {
-    setWallet('So1ana.Wallet.123abc.Connected.xyz789');
+    // For a normal user, this would be their actual wallet address.
+    // For admin, we can use a placeholder.
+    if (user.name === 'AdminUser') {
+        setWallet('admin.wallet.connected');
+    } else {
+        const fullWallet = `4qaFa3W3Nq2JpLwG7h7fG${user.id.slice(-5)}`; // example full address
+        setWallet(fullWallet);
+    }
   };
 
   const handleCopyReferral = () => {
