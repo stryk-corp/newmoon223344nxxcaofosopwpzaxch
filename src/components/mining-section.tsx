@@ -29,6 +29,7 @@ export function MiningSection({ user }: { user: any }) {
 
   // Update balance via mining rate and update firestore document
   useEffect(() => {
+    if (!user) return;
     const firestoreUpdateInterval = 5000; // ms
     let accumulatedBalance = 0;
 
@@ -53,7 +54,7 @@ export function MiningSection({ user }: { user: any }) {
         updateDoc(userDocRef, { balance: increment(accumulatedBalance) });
       }
     };
-  }, [balance, userDocRef]);
+  }, [balance, userDocRef, user]);
   
   useEffect(() => {
     if (nextTier) {
@@ -64,8 +65,21 @@ export function MiningSection({ user }: { user: any }) {
     }
   }, [balance, nextTier]);
 
-  if (loading) {
+  if (loading && !userProfile) {
     return <div>Loading mining data...</div>
+  }
+
+  if (!user) {
+    return (
+        <div className="w-full max-w-md mx-auto flex flex-col items-center gap-8 py-12">
+            <div className="text-center space-y-4">
+                <h1 className="font-headline text-5xl font-bold tracking-tighter">
+                    Please log in
+                </h1>
+                <p className="text-muted-foreground">Connect your wallet to start mining.</p>
+            </div>
+        </div>
+    )
   }
 
   return (
