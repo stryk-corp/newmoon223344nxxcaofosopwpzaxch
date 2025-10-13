@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { tiers } from '@/lib/tiers';
 import type { User } from '@/lib/types';
 import { doc, updateDoc, increment } from 'firebase/firestore';
-import { useDoc, useFirestore, useUser } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -15,7 +15,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
   const userDocRef = useMemo(() => (authUser ? doc(firestore, 'users', authUser.uid) : null), [firestore, authUser]);
   const { data: userProfile, loading } = useDoc<User>(userDocRef);
 
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(userProfile?.balance ?? 0);
   const [progress, setProgress] = useState(0);
   const miningRate = 0.001; // tokens per second
 
@@ -113,7 +113,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
       <div className="text-center space-y-4">
         <p className="text-muted-foreground">Your Balance</p>
         <h1 className="font-headline text-5xl font-bold tracking-tighter transition-all duration-300">
-          {balance.toFixed(3)}
+          {(balance || 0).toFixed(3)}
         </h1>
       </div>
 
