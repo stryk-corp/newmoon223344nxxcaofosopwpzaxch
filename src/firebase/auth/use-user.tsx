@@ -87,6 +87,7 @@ export function useUser() {
       // If there's no firebase user, we're not loading anymore.
       setLoading(false);
     }
+    // If there's a user but no publicKey, we keep loading, waiting for wallet connection.
   }, [user, publicKey, firestore]);
 
 
