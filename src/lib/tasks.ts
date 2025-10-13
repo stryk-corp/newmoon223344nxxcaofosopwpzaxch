@@ -6,7 +6,7 @@ export const tasks: Task[] = [
     title: 'Follow us on X',
     description: 'Stay up to date with the latest announcements.',
     reward: 100,
-    link: '#',
+    link: 'https://x.com/firebase',
     icon: 'Twitter',
   },
   {
@@ -14,7 +14,7 @@ export const tasks: Task[] = [
     title: 'Join our Telegram',
     description: 'Join our community and get involved.',
     reward: 100,
-    link: '#',
+    link: 'https://t.me/firebase',
     icon: 'Send',
   },
   {
@@ -22,7 +22,7 @@ export const tasks: Task[] = [
     title: 'Refer a Friend',
     description: 'Invite your friends and earn more.',
     reward: 250,
-    link: '/profile',
+    link: '/referrals',
     icon: 'Users',
   },
 ];
