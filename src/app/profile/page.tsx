@@ -88,7 +88,7 @@ export default function ProfilePage() {
                 </Button>
               </div>
             </CardContent>
-          </card>
+          </Card>
         </div>
       </div>
     </div>
