@@ -1,13 +1,13 @@
 'use client';
 
 import { Leaderboard } from '@/components/rankings/leaderboard';
-import { useCollection } from '@/firebase/firestore/use-collection';
+import { useCollection, useFirestore } from '@/firebase';
 import type { User } from '@/lib/types';
-import { collection, getFirestore, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 
 
 export default function RankingsPage() {
-  const firestore = getFirestore();
+  const firestore = useFirestore();
   const usersQuery = firestore ? query(collection(firestore, 'users'), orderBy('balance', 'desc')) : null;
   const { data: users, loading } = useCollection<User>(usersQuery);
 

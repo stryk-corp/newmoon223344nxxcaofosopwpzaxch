@@ -8,15 +8,14 @@ import { CheckCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { completeTaskAction } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Icon } from '@/components/icons';
-import { useUser } from '@/firebase/auth/use-user';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import { doc, getFirestore } from 'firebase/firestore';
+import { useUser, useDoc, useFirestore } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import type { User } from '@/lib/types';
 
 
 export default function TasksPage() {
   const { user, loading: userLoading } = useUser();
-  const firestore = getFirestore();
+  const firestore = useFirestore();
   const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
   const { data: userProfile, loading: profileLoading } = useDoc<User>(userDocRef);
 

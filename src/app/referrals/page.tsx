@@ -7,15 +7,14 @@ import { Check, Clipboard, Gift } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ReferralList } from '@/components/referrals/referral-list';
-import { useUser } from '@/firebase/auth/use-user';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import { collection, doc, getFirestore } from 'firebase/firestore';
+import { useUser, useDoc, useFirestore, useCollection } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 import type { User } from '@/lib/types';
-import { useCollection } from '@/firebase/firestore/use-collection';
+
 
 export default function ReferralsPage() {
   const { user, loading: userLoading } = useUser();
-  const firestore = getFirestore();
+  const firestore = useFirestore();
   const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
   const { data: userProfile, loading: profileLoading } = useDoc<User>(userDocRef);
   

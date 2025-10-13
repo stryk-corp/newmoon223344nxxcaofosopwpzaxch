@@ -5,12 +5,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserTable } from '@/components/admin/user-table';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, getFirestore } from 'firebase/firestore';
+import { useCollection } from '@/firebase';
+import { collection } from 'firebase/firestore';
 import type { User } from '@/lib/types';
+import { useFirestore } from '@/firebase';
 
 export default function AdminPage() {
-  const firestore = getFirestore();
+  const firestore = useFirestore();
   const { data: users, loading } = useCollection<User>(firestore ? collection(firestore, 'users') : null);
 
   if (loading) {

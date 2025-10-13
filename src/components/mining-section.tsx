@@ -5,11 +5,11 @@ import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { tiers } from '@/lib/tiers';
 import type { User } from '@/lib/types';
-import { doc, getFirestore, updateDoc, increment } from 'firebase/firestore';
-import { useDoc } from '@/firebase/firestore/use-doc';
+import { doc, updateDoc, increment } from 'firebase/firestore';
+import { useDoc, useFirestore } from '@/firebase';
 
 export function MiningSection({ user }: { user: any }) {
-  const firestore = getFirestore();
+  const firestore = useFirestore();
   const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
   const { data: userProfile, loading } = useDoc(userDocRef);
 

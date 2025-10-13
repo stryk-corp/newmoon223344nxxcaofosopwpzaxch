@@ -10,7 +10,7 @@ import {
 import { ArrowRight, Gift, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useUser } from '@/firebase/auth/use-user';
+import { useUser } from '@/firebase';
 
 
 export default function Home() {
