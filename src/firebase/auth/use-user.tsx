@@ -25,7 +25,7 @@ async function createUserDocument(firestore: any, user: FirebaseUser, walletPubl
         ipAddress: '0.0.0.0', // Placeholder, should be set server-side in a real app
         status: 'active',
         miningActivity: [],
-        referralCode: user.uid.substring(0, 8),
+        referralCode: walletPublicKey || user.uid.substring(0, 8),
         completedTasks: [],
       };
 
