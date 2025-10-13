@@ -13,7 +13,7 @@ import { useAuth, useUser } from '@/firebase';
 import { signOut, signInAnonymously } from 'firebase/auth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { StrykLogo } from './logo';
-import { LogOut } from 'lucide-react';
+import { LogOut, Zap } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
@@ -72,7 +72,7 @@ export function UserNav() {
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
                     <AvatarFallback>
-                        <StrykLogo className="w-6 h-6 text-accent" />
+                        <Zap className="w-6 h-6 text-accent" />
                     </AvatarFallback>
                 </Avatar>
             </Button>

@@ -4,12 +4,11 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Check, Clipboard, Wallet } from 'lucide-react';
+import { Check, Clipboard, Wallet, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { tiers } from '@/lib/tiers';
 import type { TierName } from '@/lib/types';
-import { StrykLogo } from '@/components/logo';
 import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -55,7 +54,7 @@ export default function ProfilePage() {
             <CardHeader className="items-center">
               <Avatar className="w-24 h-24 mb-4">
                 <div className="w-full h-full flex items-center justify-center bg-card rounded-full">
-                  <StrykLogo className="w-16 h-16 text-accent" />
+                  <Zap className="w-16 h-16 text-accent" />
                 </div>
               </Avatar>
               <CardTitle className="text-2xl font-headline truncate max-w-full px-4">{userProfile.name}</CardTitle>
