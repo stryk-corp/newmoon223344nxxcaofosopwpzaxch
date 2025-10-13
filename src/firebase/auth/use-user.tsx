@@ -18,7 +18,7 @@ async function createUserDocument(firestore: any, user: FirebaseUser, walletPubl
 
     if (!userSnap.exists()) {
       const newUser: Omit<User, 'id'> = {
-        name: walletPublicKey ? `${walletPublicKey.substring(0, 6)}...${walletPublicKey.substring(walletPublicKey.length - 4)}` : 'Anonymous User',
+        name: walletPublicKey || `user_${user.uid.substring(0, 5)}`,
         avatarUrl: '',
         balance: 0,
         tier: 'Bronze',
