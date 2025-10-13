@@ -57,9 +57,9 @@ export function Leaderboard({ allUsers }: { allUsers: User[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <Select value={tierFilter} onValueChange={setTierFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by Tier" />
           </SelectTrigger>
           <SelectContent>
@@ -72,7 +72,7 @@ export function Leaderboard({ allUsers }: { allUsers: User[] }) {
           </SelectContent>
         </Select>
         <Select value={timeFilter} onValueChange={setTimeFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by Time" />
           </SelectTrigger>
           <SelectContent>
@@ -88,7 +88,7 @@ export function Leaderboard({ allUsers }: { allUsers: User[] }) {
             <TableRow>
               <TableHead className="w-[80px] text-center">Rank</TableHead>
               <TableHead>User</TableHead>
-              <TableHead>Tier</TableHead>
+              <TableHead className="hidden sm:table-cell">Tier</TableHead>
               <TableHead className="text-right">Balance</TableHead>
             </TableRow>
           </TableHeader>
@@ -106,10 +106,15 @@ export function Leaderboard({ allUsers }: { allUsers: User[] }) {
                       <AvatarImage src={user.avatarUrl} alt={user.name} />
                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">{user.name}</span>
+                    <div className="flex flex-col">
+                        <span className="font-medium">{user.name}</span>
+                        <Badge variant="outline" className={`${tierBadgeColors[user.tier]} sm:hidden`}>
+                            {user.tier}
+                        </Badge>
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <Badge variant="outline" className={tierBadgeColors[user.tier]}>
                     {user.tier}
                   </Badge>

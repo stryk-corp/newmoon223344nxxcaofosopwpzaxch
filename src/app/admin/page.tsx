@@ -11,7 +11,7 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="font-headline text-3xl md:text-4xl font-bold mb-8">Admin Dashboard</h1>
-      <Tabs defaultValue="users">
+      <Tabs defaultValue="users" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md">
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>

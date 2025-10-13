@@ -36,8 +36,8 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="font-headline text-3xl md:text-4xl font-bold mb-8">Profile</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
           <Card>
             <CardHeader className="items-center">
               <Avatar className="w-24 h-24 mb-4">
@@ -55,7 +55,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-        <div className="md:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Wallet Connection</CardTitle>
@@ -81,9 +81,9 @@ export default function ProfilePage() {
               <CardDescription>Share your referral link to earn bonuses when your friends join.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input readOnly value={`${typeof window !== 'undefined' ? window.location.origin : ''}/join?ref=${user.referralCode}`} />
-                <Button onClick={handleCopyReferral} size="icon" variant="outline">
+                <Button onClick={handleCopyReferral} size="icon" variant="outline" className="w-full sm:w-auto">
                   {copied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
                 </Button>
               </div>

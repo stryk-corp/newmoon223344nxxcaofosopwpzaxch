@@ -14,7 +14,7 @@ export default function Home() {
     <div className="flex flex-col items-center p-4 md:p-8">
       <MiningSection />
 
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+      <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
@@ -41,7 +41,7 @@ export default function Home() {
             </p>
           </CardContent>
         </Card>
-        <Card className="md:col-span-1 bg-primary/20 border-accent/50 flex flex-col justify-center items-start">
+        <Card className="sm:col-span-2 lg:col-span-1 bg-primary/20 border-accent/50 flex flex-col justify-center items-start">
             <CardHeader>
                 <CardTitle>View All Tasks</CardTitle>
             </CardHeader>

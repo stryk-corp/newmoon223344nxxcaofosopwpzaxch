@@ -80,82 +80,88 @@ export function UserTable({ users }: { users: User[] }) {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>User</TableHead>
-          <TableHead>IP Address</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Balance</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.map((user) => (
-          <TableRow key={user.id}>
-            <TableCell>
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{user.name}</span>
-              </div>
-            </TableCell>
-            <TableCell>{user.ipAddress}</TableCell>
-            <TableCell>
-              <Badge variant="outline" className={`gap-1 ${statusConfig[user.status].color}`}>
-                {statusConfig[user.status].icon}
-                <span>{statusConfig[user.status].label}</span>
-                {user.status === 'suspended' && user.suspensionEndDate && (
-                    <span className="text-xs ml-1">
-                        (ends in {formatDistanceToNow(new Date(user.suspensionEndDate))})
-                    </span>
-                )}
-              </Badge>
-            </TableCell>
-            <TableCell className="font-headline font-semibold">
-              {user.balance.toLocaleString()}
-            </TableCell>
-            <TableCell className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleFraudCheck(user.id)}
-                disabled={loading[`fraud-${user.id}`]}
-                className="mr-2"
-              >
-                <ShieldAlert className="mr-2 h-4 w-4" />
-                {loading[`fraud-${user.id}`] ? 'Checking...' : 'Check Fraud'}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={loading[`status-${user.id}`]}>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleUpdateStatus(user.id, 'active')}>
-                    <UserCheck className="mr-2 h-4 w-4" />
-                    Activate
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleUpdateStatus(user.id, 'suspended')}>
-                    <Gavel className="mr-2 h-4 w-4" />
-                    Suspend (5 days)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={() => handleUpdateStatus(user.id, 'banned')}
-                  >
-                    <Ban className="mr-2 h-4 w-4" />
-                    Ban
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
+    <div className="w-full overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead className="hidden md:table-cell">IP Address</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="hidden md:table-cell">Balance</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {users.map((user) => (
+            <TableRow key={user.id}>
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{user.name}</span>
+                    <span className="text-muted-foreground text-sm md:hidden">{user.ipAddress}</span>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="hidden md:table-cell">{user.ipAddress}</TableCell>
+              <TableCell>
+                <Badge variant="outline" className={`gap-1 ${statusConfig[user.status].color}`}>
+                  {statusConfig[user.status].icon}
+                  <span>{statusConfig[user.status].label}</span>
+                  {user.status === 'suspended' && user.suspensionEndDate && (
+                      <span className="text-xs ml-1 hidden lg:inline">
+                          (ends in {formatDistanceToNow(new Date(user.suspensionEndDate))})
+                      </span>
+                  )}
+                </Badge>
+              </TableCell>
+              <TableCell className="font-headline font-semibold hidden md:table-cell">
+                {user.balance.toLocaleString()}
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleFraudCheck(user.id)}
+                    disabled={loading[`fraud-${user.id}`]}
+                  >
+                    <ShieldAlert className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">{loading[`fraud-${user.id}`] ? 'Checking...' : 'Check Fraud'}</span>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" disabled={loading[`status-${user.id}`]}>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleUpdateStatus(user.id, 'active')}>
+                        <UserCheck className="mr-2 h-4 w-4" />
+                        Activate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleUpdateStatus(user.id, 'suspended')}>
+                        <Gavel className="mr-2 h-4 w-4" />
+                        Suspend (5 days)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => handleUpdateStatus(user.id, 'banned')}
+                      >
+                        <Ban className="mr-2 h-4 w-4" />
+                        Ban
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
