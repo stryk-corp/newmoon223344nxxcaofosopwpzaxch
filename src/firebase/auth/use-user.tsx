@@ -10,8 +10,9 @@ import { FirestorePermissionError } from '../errors';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 // Function to create a new user document in Firestore
-async function createUserDocument(firestore: any, user: FirebaseUser, walletPublicKey: string) {
-  const userRef = doc(firestore, 'users', user.uid);
+async function createUserDocument(firestore: any, walletPublicKey: string) {
+  if (!walletPublicKey) return;
+  const userRef = doc(firestore, 'users', walletPublicKey);
   
   try {
     const userSnap = await getDoc(userRef);
@@ -30,8 +31,6 @@ async function createUserDocument(firestore: any, user: FirebaseUser, walletPubl
       };
 
       await setDoc(userRef, newUser).catch((error) => {
-        // This is a critical error if it happens on user creation.
-        // It's likely a security rule issue.
         const permissionError = new FirestorePermissionError({
           path: userRef.path,
           operation: 'create',
@@ -42,7 +41,6 @@ async function createUserDocument(firestore: any, user: FirebaseUser, walletPubl
       });
     }
   } catch (error: any) {
-      // This would typically be a network or permissions error on getDoc
       const permissionError = new FirestorePermissionError({
           path: userRef.path,
           operation: 'get',
@@ -56,7 +54,7 @@ async function createUserDocument(firestore: any, user: FirebaseUser, walletPubl
 export function useUser() {
   const auth = useAuth();
   const firestore = useFirestore();
-  const { publicKey } = useWallet();
+  const { publicKey, connected } = useWallet();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -66,30 +64,28 @@ export function useUser() {
         return;
     }
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      setUser(authUser); // Set Firebase user immediately for auth state
+      setUser(authUser);
       if (!authUser) {
         setLoading(false);
       }
-      // The rest of the logic (document creation) will be handled by the next effect
     });
 
     return () => unsubscribe();
   }, [auth, firestore]);
 
   useEffect(() => {
-    // This effect runs when either the firebase user or public key changes.
-    // We only proceed to create the document if we have BOTH.
-    if (user && publicKey && firestore) {
-      createUserDocument(firestore, user, publicKey.toBase58()).then(() => {
+    // This effect runs when the wallet connection status changes.
+    if (connected && publicKey && firestore) {
+      createUserDocument(firestore, publicKey.toBase58()).then(() => {
         setLoading(false);
       });
-    } else if (!user) {
-      // If there's no firebase user, we're not loading anymore.
-      setLoading(false);
+    } else if (!connected) {
+        // If wallet disconnects, we aren't loading anymore.
+        setLoading(false);
     }
-    // If there's a user but no publicKey, we keep loading, waiting for wallet connection.
-  }, [user, publicKey, firestore]);
+  }, [connected, publicKey, firestore]);
 
 
+  // Return the Firebase user for auth context, but the app should rely on the public key for data.
   return { user, loading };
 }

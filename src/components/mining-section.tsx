@@ -9,10 +9,13 @@ import { doc, updateDoc, increment } from 'firebase/firestore';
 import { useDoc, useFirestore } from '@/firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export function MiningSection({ user: authUser }: { user: any }) {
   const firestore = useFirestore();
-  const userDocRef = useMemo(() => (authUser ? doc(firestore, 'users', authUser.uid) : null), [firestore, authUser]);
+  const { publicKey, connected } = useWallet();
+
+  const userDocRef = useMemo(() => (connected && publicKey ? doc(firestore, 'users', publicKey.toBase58()) : null), [firestore, connected, publicKey]);
   const { data: userProfile, loading } = useDoc<User>(userDocRef);
 
   const [balance, setBalance] = useState(userProfile?.balance ?? 0);
@@ -33,7 +36,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
 
   // Update balance via mining rate and update firestore document
   useEffect(() => {
-    if (!authUser || !userProfile) return; // Don't run if user or profile is not loaded
+    if (!connected || !userProfile) return; // Don't run if user or profile is not loaded
 
     const firestoreUpdateInterval = 5000; // ms
     let accumulatedBalance = 0;
@@ -49,7 +52,6 @@ export function MiningSection({ user: authUser }: { user: any }) {
         accumulatedBalance = 0; // Reset before async operation
         updateDoc(userDocRef, { balance: increment(amountToUpdate) })
             .catch(err => {
-                console.error("Failed to update balance:", err);
                 const permissionError = new FirestorePermissionError({
                   path: userDocRef.path,
                   operation: 'update',
@@ -70,7 +72,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
         });
       }
     };
-  }, [authUser, userProfile, userDocRef, miningRate]);
+  }, [connected, userProfile, userDocRef, miningRate]);
   
   useEffect(() => {
     if (nextTier && balance > 0) {
@@ -87,7 +89,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
     return <div>Loading mining data...</div>
   }
 
-  if (!authUser) {
+  if (!connected) {
     return (
         <div className="w-full max-w-md mx-auto flex flex-col items-center gap-8 py-12">
             <div className="text-center space-y-4">

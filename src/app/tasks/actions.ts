@@ -5,11 +5,13 @@ import { initializeFirebase } from '@/firebase';
 import { doc, updateDoc, arrayUnion, increment, getDoc } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import type { User } from '@/lib/types';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 const completeTaskSchema = z.object({
   taskId: z.string(),
   reward: z.coerce.number(),
-  userId: z.string(),
+  userId: z.string(), // This is now the wallet public key
 });
 
 type CompleteTaskInput = z.infer<typeof completeTaskSchema>;
@@ -26,9 +28,6 @@ export async function completeTaskAction(input: CompleteTaskInput) {
   const { taskId, reward, userId } = validatedFields.data;
   const { firestore } = await initializeFirebase();
   
-  // In a real app, you would also:
-  // 1. Verify the task completion (e.g., via an API call to X/Telegram).
-
   try {
     const userRef = doc(firestore, 'users', userId);
     const userSnap = await getDoc(userRef);
@@ -39,15 +38,26 @@ export async function completeTaskAction(input: CompleteTaskInput) {
 
     const userData = userSnap.data() as User;
 
-    // Check if the task has already been completed
     if (userData.completedTasks?.includes(taskId)) {
         return { message: 'Task already completed.' };
     }
 
-    await updateDoc(userRef, {
+    const updateData = {
         completedTasks: arrayUnion(taskId),
         balance: increment(reward)
-    });
+    };
+
+    await updateDoc(userRef, updateData)
+      .catch((error) => {
+        const permissionError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        // Re-throw or handle as needed, here we'll let the client know it failed.
+        throw error;
+      });
 
     revalidatePath('/tasks');
 

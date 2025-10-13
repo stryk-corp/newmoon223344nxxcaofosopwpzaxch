@@ -33,14 +33,13 @@ export function UserNav() {
   const { publicKey, connected, disconnect } = useWallet();
 
   useEffect(() => {
+    // This effect handles the Firebase anonymous authentication session based on wallet connection state.
+    // This is to satisfy Firebase Security Rules that require an authenticated user.
     if (connected && publicKey && !user && auth) {
-      // Use anonymous sign-in as a stand-in for custom auth for this demo.
-      // This provides a Firebase UID to associate with the wallet.
       signInAnonymously(auth).catch((error) => {
           console.error('Anonymous sign-in for custom auth demo failed', error);
       });
     } else if (!connected && user && auth) {
-        // If wallet disconnects, sign out from Firebase as well.
         signOut(auth);
     }
   }, [connected, publicKey, user, auth]);
@@ -50,7 +49,7 @@ export function UserNav() {
     return <Skeleton className="h-10 w-28" />;
   }
 
-  if (!connected || !user || !publicKey) {
+  if (!connected || !publicKey) {
     return (
         <WalletMultiButton />
     );

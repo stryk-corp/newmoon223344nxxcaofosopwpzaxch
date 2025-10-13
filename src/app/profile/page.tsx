@@ -10,17 +10,17 @@ import { Input } from '@/components/ui/input';
 import { tiers } from '@/lib/tiers';
 import type { TierName } from '@/lib/types';
 import { StrykLogo } from '@/components/logo';
-import { useUser, useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 
 export default function ProfilePage() {
-  const { user, loading: userLoading } = useUser();
+  const { publicKey, connected } = useWallet();
   const firestore = useFirestore();
-  const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const userDocRef = useMemo(() => (connected && publicKey ? doc(firestore, 'users', publicKey.toBase58()) : null), [firestore, connected, publicKey]);
   const { data: userProfile, loading: profileLoading } = useDoc(userDocRef);
 
-  const [wallet, setWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -31,12 +31,6 @@ export default function ProfilePage() {
     return tiers.find(tier => userProfile.balance < tier.maxBalance)?.name || 'Diamond';
   }, [userProfile]);
 
-  const handleConnectWallet = () => {
-    if (user?.uid) {
-        setWallet(user.uid);
-    }
-  };
-
   const handleCopyReferral = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
@@ -44,11 +38,11 @@ export default function ProfilePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (userLoading || profileLoading) {
+  if (profileLoading) {
     return <div>Loading...</div>;
   }
   
-  if (!user || !userProfile) {
+  if (!connected || !userProfile) {
     return <div>Please log in to see your profile.</div>;
   }
 
@@ -82,13 +76,13 @@ export default function ProfilePage() {
               <CardDescription>Connect your Solana wallet to participate in withdrawals.</CardDescription>
             </CardHeader>
             <CardContent>
-              {wallet ? (
+              {publicKey ? (
                 <div className="p-4 rounded-md bg-secondary">
                   <p className="text-sm text-muted-foreground">Connected Wallet:</p>
-                  <p className="font-mono text-lg break-all">{wallet}</p>
+                  <p className="font-mono text-lg break-all">{publicKey.toBase58()}</p>
                 </div>
               ) : (
-                <Button onClick={handleConnectWallet}>
+                <Button>
                   <Wallet className="mr-2 h-4 w-4" />
                   Connect Solana Wallet
                 </Button>

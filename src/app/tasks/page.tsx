@@ -8,15 +8,17 @@ import { CheckCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { completeTaskAction } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Icon } from '@/components/icons';
-import { useUser, useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { User, Task } from '@/lib/types';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 
 export default function TasksPage() {
-  const { user, loading: userLoading } = useUser();
+  const { publicKey, connected } = useWallet();
   const firestore = useFirestore();
-  const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
+  
+  const userDocRef = useMemo(() => (connected && publicKey ? doc(firestore, 'users', publicKey.toBase58()) : null), [firestore, connected, publicKey]);
   const { data: userProfile, loading: profileLoading } = useDoc<User>(userDocRef);
 
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export default function TasksPage() {
   );
 
   const handleTaskClick = (task: Task) => {
-    if (!user) {
+    if (!publicKey) {
         toast({
             title: "Not Logged In",
             description: "You need to be logged in to complete tasks.",
@@ -42,7 +44,7 @@ export default function TasksPage() {
     setPendingTaskId(task.id);
     startTransition(async () => {
       addOptimisticTask(task.id);
-      const result = await completeTaskAction({ taskId: task.id, reward: task.reward, userId: user.uid });
+      const result = await completeTaskAction({ taskId: task.id, reward: task.reward, userId: publicKey.toBase58() });
       
       if (result?.message && result?.taskId) {
         toast({
@@ -64,7 +66,7 @@ export default function TasksPage() {
     }
   };
   
-  if (userLoading || profileLoading) {
+  if (profileLoading) {
       return <div>Loading...</div>
   }
 
