@@ -16,6 +16,7 @@ export default function ProfilePage() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const referralLink = `https://mine.drstryk.com/join?ref=${user.referralCode}`;
 
   const userTier: TierName = useMemo(() => {
     return tiers.find(tier => user.balance < tier.maxBalance)?.name || 'Diamond';
@@ -26,7 +27,6 @@ export default function ProfilePage() {
   };
 
   const handleCopyReferral = () => {
-    const referralLink = `${window.location.origin}/join?ref=${user.referralCode}`;
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     toast({ title: 'Copied to clipboard!' });
@@ -82,7 +82,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col sm:flex-row gap-2">
-                <Input readOnly value={`${typeof window !== 'undefined' ? window.location.origin : ''}/join?ref=${user.referralCode}`} />
+                <Input readOnly value={referralLink} />
                 <Button onClick={handleCopyReferral} size="icon" variant="outline" className="w-full sm:w-auto">
                   {copied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
                 </Button>
