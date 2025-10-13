@@ -23,6 +23,8 @@ import { Badge } from '@/components/ui/badge';
 import { Trophy } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
+const ADMIN_WALLET_ADDRESS = 'CyXGxS6Yj94rF2Qu7KiJtvXMcap9CfJsoVcnPNGgeDpC';
+
 const tierBadgeColors: Record<TierName, string> = {
   Diamond: 'border-cyan-400/50 text-cyan-400',
   Platinum: 'border-slate-400/50 text-slate-400',
@@ -35,13 +37,20 @@ const getUserTier = (balance: number): TierName => {
   return tiers.find(t => balance < t.maxBalance)?.name || 'Diamond';
 }
 
+const maskAddress = (address: string) => {
+    if (address.length < 20) return address; // Not a wallet address
+    return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
+};
+
 export function Leaderboard({ allUsers }: { allUsers: User[] }) {
   const [tierFilter, setTierFilter] = useState('All');
   const [timeFilter, setTimeFilter] = useState('All-time');
 
-  const usersWithTiers = useMemo(() => allUsers.map(user => ({
-    ...user,
-    tier: getUserTier(user.balance)
+  const usersWithTiers = useMemo(() => allUsers
+    .filter(user => user.id !== ADMIN_WALLET_ADDRESS) // Exclude admin
+    .map(user => ({
+      ...user,
+      tier: getUserTier(user.balance)
   })), [allUsers])
 
   const filteredUsers = usersWithTiers
@@ -107,7 +116,7 @@ export function Leaderboard({ allUsers }: { allUsers: User[] }) {
                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                        <span className="font-medium">{user.name}</span>
+                        <span className="font-medium">{maskAddress(user.name)}</span>
                         <Badge variant="outline" className={`${tierBadgeColors[user.tier]} sm:hidden`}>
                             {user.tier}
                         </Badge>
