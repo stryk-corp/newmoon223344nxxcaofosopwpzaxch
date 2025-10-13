@@ -10,11 +10,22 @@ import {
 import { ArrowRight, Gift, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useUser } from '@/firebase';
+import { useDoc, useFirestore, useUser } from '@/firebase';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useMemo } from 'react';
+import { doc } from 'firebase/firestore';
+import type { User } from '@/lib/types';
 
 
 export default function Home() {
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
+  const firestore = useFirestore();
+  const { publicKey, connected } = useWallet();
+
+  const userDocRef = useMemo(() => (connected && publicKey ? doc(firestore, 'users', publicKey.toBase58()) : null), [firestore, connected, publicKey]);
+  const { data: userProfile, loading: profileLoading } = useDoc<User>(userDocRef);
+
+  const loading = userLoading || profileLoading;
 
   if (loading) {
     return <div>Loading...</div>;
@@ -33,7 +44,7 @@ export default function Home() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-headline">+0.001/s</div>
+            <div className="text-2xl font-bold font-headline">+{userProfile?.miningRate ?? 0.001}/s</div>
             <p className="text-xs text-muted-foreground">
               Base rate
             </p>

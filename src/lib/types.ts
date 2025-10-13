@@ -12,6 +12,7 @@ export const UserSchema = z.object({
   name: z.string(),
   avatarUrl: z.string().url().optional(),
   balance: z.number(),
+  miningRate: z.number(),
   tier: z.enum(['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond']),
   ipAddress: z.string(),
   status: z.enum(['active', 'suspended', 'banned']),

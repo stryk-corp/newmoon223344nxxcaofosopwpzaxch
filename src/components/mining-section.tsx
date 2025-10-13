@@ -20,7 +20,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
 
   const [balance, setBalance] = useState(userProfile?.balance ?? 0);
   const [progress, setProgress] = useState(0);
-  const miningRate = 0.001; // tokens per second
+  const miningRate = userProfile?.miningRate ?? 0.001;
 
   // Set initial balance from profile
   useEffect(() => {

@@ -22,6 +22,7 @@ async function createUserDocument(firestore: any, walletPublicKey: string) {
         name: walletPublicKey,
         avatarUrl: '',
         balance: 0,
+        miningRate: 0.001,
         tier: 'Bronze',
         ipAddress: '0.0.0.0', // Placeholder, should be set server-side in a real app
         status: 'active',

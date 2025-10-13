@@ -18,6 +18,10 @@
           "type": "number",
           "description": "The user's current token balance."
         },
+        "miningRate": {
+          "type": "number",
+          "description": "The user's mining rate in tokens per second."
+        },
         "tier": {
           "type": "string",
           "enum": ["Bronze", "Silver", "Gold", "Platinum", "Diamond"],
@@ -50,7 +54,7 @@
           "description": "The user's unique referral code."
         }
       },
-      "required": ["name", "balance", "tier", "ipAddress", "status", "referralCode"]
+      "required": ["name", "balance", "tier", "ipAddress", "status", "referralCode", "miningRate"]
     }
   },
   "auth": {
