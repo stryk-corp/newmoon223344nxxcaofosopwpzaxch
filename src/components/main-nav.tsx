@@ -1,0 +1,100 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { navLinks } from '@/lib/nav-links';
+import { cn } from '@/lib/utils';
+import {
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import { Icon } from '@/components/icons';
+
+const StrykLogo = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-accent"
+  >
+    <path
+      d="M12 2L2 7L12 12L22 7L12 2Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M2 17L12 22L22 17"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M2 12L12 17L22 12"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export function MainNav() {
+  const pathname = usePathname();
+  const { state } = useSidebar();
+
+  return (
+    <>
+      <SidebarHeader>
+        <div
+          className={cn(
+            'flex items-center gap-2',
+            state === 'collapsed' && 'justify-center'
+          )}
+        >
+          <StrykLogo />
+          <h1
+            className={cn(
+              'font-headline text-xl font-semibold',
+              state === 'collapsed' && 'hidden'
+            )}
+          >
+            Stryk
+          </h1>
+        </div>
+        <div className="flex items-center justify-end">
+          <SidebarTrigger className="hidden md:flex" />
+        </div>
+      </SidebarHeader>
+
+      <SidebarMenu className="flex-1">
+        {navLinks.map((link) => (
+          <SidebarMenuItem key={link.id}>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === link.path}
+              tooltip={{
+                children: link.label,
+                className: 'bg-primary text-primary-foreground',
+              }}
+            >
+              <Link href={link.path} title={link.label}>
+                <Icon name={link.icon} className="shrink-0" />
+                <span>{link.label}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    </>
+  );
+}
