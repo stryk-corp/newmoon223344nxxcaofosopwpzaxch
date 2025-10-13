@@ -1,7 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 
 import { tasks } from '@/lib/tasks';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +31,7 @@ function SubmitButton({ completed }: { completed: boolean }) {
 }
 
 export default function TasksPage() {
-  const [state, formAction] = useFormState(completeTaskAction, null);
+  const [state, formAction] = useActionState(completeTaskAction, null);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const { toast } = useToast();
 
