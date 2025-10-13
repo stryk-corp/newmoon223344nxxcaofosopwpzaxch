@@ -9,8 +9,8 @@ import { UserNav } from '@/components/user-nav';
 import { SolanaProvider } from '@/components/solana-provider';
 
 export const metadata: Metadata = {
-  title: 'Stryk Mining Platform',
-  description: 'Stryk Mining Platform',
+  title: 'Stryk',
+  description: 'Stryk',
 };
 
 export default function RootLayout({
