@@ -22,7 +22,7 @@ export function MiningSection({ user: authUser }: { user: any }) {
   const [progress, setProgress] = useState(0);
   const miningRate = userProfile?.miningRate ?? 0.001;
 
-  // Set initial balance from profile
+  // Set initial balance from profile and sync on updates
   useEffect(() => {
     if (userProfile) {
       setBalance(userProfile.balance);
