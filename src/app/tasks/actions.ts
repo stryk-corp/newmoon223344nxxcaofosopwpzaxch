@@ -7,11 +7,10 @@ const completeTaskSchema = z.object({
   reward: z.coerce.number(),
 });
 
-export async function completeTaskAction(prevState: any, formData: FormData) {
-  const validatedFields = completeTaskSchema.safeParse({
-    taskId: formData.get('taskId'),
-    reward: formData.get('reward'),
-  });
+type CompleteTaskInput = z.infer<typeof completeTaskSchema>;
+
+export async function completeTaskAction(input: CompleteTaskInput) {
+  const validatedFields = completeTaskSchema.safeParse(input);
 
   if (!validatedFields.success) {
     return {
