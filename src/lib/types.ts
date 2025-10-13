@@ -1,9 +1,16 @@
+export type TierName = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+
+export type Tier = {
+  name: TierName;
+  maxBalance: number;
+};
+
 export type User = {
   id: string;
   name: string;
   avatarUrl: string;
   balance: number;
-  tier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  tier: TierName;
   ipAddress: string;
   status: 'active' | 'suspended' | 'banned';
   suspensionEndDate?: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { users } from '@/lib/data';
@@ -8,12 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Check, Clipboard, Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { tiers } from '@/lib/tiers';
+import type { TierName } from '@/lib/types';
 
 export default function ProfilePage() {
   const user = users[3]; // Using 'AdminUser' as the example logged-in user
   const [wallet, setWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+
+  const userTier: TierName = useMemo(() => {
+    return tiers.find(tier => user.balance < tier.maxBalance)?.name || 'Diamond';
+  }, [user.balance]);
 
   const handleConnectWallet = () => {
     setWallet('So1ana.Wallet.123abc.Connected.xyz789');
@@ -39,7 +45,7 @@ export default function ProfilePage() {
                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <CardTitle className="text-2xl font-headline">{user.name}</CardTitle>
-              <CardDescription>{user.tier} Tier</CardDescription>
+              <CardDescription>{userTier} Tier</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <div className="font-headline text-3xl font-bold">
@@ -82,7 +88,7 @@ export default function ProfilePage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </card>
         </div>
       </div>
     </div>

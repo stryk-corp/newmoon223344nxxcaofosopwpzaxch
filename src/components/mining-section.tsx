@@ -3,23 +3,32 @@
 import { useEffect, useState } from 'react';
 import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { tiers } from '@/lib/tiers';
 
 export function MiningSection() {
   const [balance, setBalance] = useState(0);
   const [progress, setProgress] = useState(0);
+  const miningRate = 0.001; // tokens per second
+
+  const currentTier = tiers.find(tier => balance < tier.maxBalance) || tiers[tiers.length - 1];
+  const nextTier = tiers.find(tier => balance < tier.maxBalance);
 
   useEffect(() => {
-    const miningRate = 0.001; // tokens per second
     const interval = setInterval(() => {
-      setBalance((prev) => prev + miningRate / 10);
-    }, 100);
+      setBalance((prev) => prev + miningRate);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, []);
   
   useEffect(() => {
-    setProgress(Math.min((balance / 2000000) * 100, 100));
-  }, [balance]);
+    if (nextTier) {
+      const tierProgress = (balance / nextTier.maxBalance) * 100;
+      setProgress(Math.min(tierProgress, 100));
+    } else {
+      setProgress(100);
+    }
+  }, [balance, nextTier]);
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col items-center gap-8 py-12">
@@ -40,8 +49,8 @@ export function MiningSection() {
 
       <div className="w-full space-y-2 text-center">
         <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Tier: Diamond</span>
-          <span>Next: 2,000,000</span>
+          <span>Tier: {currentTier.name}</span>
+          {nextTier ? <span>Next: {nextTier.maxBalance.toLocaleString()}</span> : <span>Max Tier Reached</span>}
         </div>
         <Progress value={progress} className="h-2" />
       </div>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import type { User } from '@/lib/types';
+import { useState, useMemo } from 'react';
+import type { User, TierName } from '@/lib/types';
+import { tiers } from '@/lib/tiers';
 import {
   Table,
   TableBody,
@@ -20,8 +21,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Trophy } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
-const tierBadgeColors = {
+const tierBadgeColors: Record<TierName, string> = {
   Diamond: 'border-cyan-400/50 text-cyan-400',
   Platinum: 'border-slate-400/50 text-slate-400',
   Gold: 'border-yellow-400/50 text-yellow-400',
@@ -29,11 +31,20 @@ const tierBadgeColors = {
   Bronze: 'border-orange-400/50 text-orange-400',
 };
 
+const getUserTier = (balance: number): TierName => {
+  return tiers.find(t => balance < t.maxBalance)?.name || 'Diamond';
+}
+
 export function Leaderboard({ allUsers }: { allUsers: User[] }) {
   const [tierFilter, setTierFilter] = useState('All');
   const [timeFilter, setTimeFilter] = useState('All-time');
 
-  const filteredUsers = allUsers
+  const usersWithTiers = useMemo(() => allUsers.map(user => ({
+    ...user,
+    tier: getUserTier(user.balance)
+  })), [allUsers])
+
+  const filteredUsers = usersWithTiers
     .filter((user) => tierFilter === 'All' || user.tier === tierFilter)
     .sort((a, b) => b.balance - a.balance);
 
@@ -114,7 +125,3 @@ export function Leaderboard({ allUsers }: { allUsers: User[] }) {
     </div>
   );
 }
-// Dummy Card component to resolve TS error, will be removed by compiler
-const Card = ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div {...props}>{children}</div>
-);
