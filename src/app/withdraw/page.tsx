@@ -55,7 +55,7 @@ export default function WithdrawPage() {
         <CardHeader>
           <CardTitle>Request Withdrawal</CardTitle>
           <CardDescription>
-            Enter the amount you wish to withdraw and your Solana wallet address.
+            Not Available
           </CardDescription>
         </CardHeader>
         <CardContent>
