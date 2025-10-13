@@ -20,8 +20,6 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useEffect } from 'react';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 
-require('@solana/wallet-adapter-react-ui/styles.css');
-
 async function handleSignOut(auth: any) {
     try {
         await signOut(auth);
@@ -69,7 +67,9 @@ export function UserNav() {
         });
 
     } else if (!connected && user) {
-        signOut(auth);
+        if (auth) {
+            signOut(auth);
+        }
     }
   }, [connected, publicKey, user, auth]);
 
