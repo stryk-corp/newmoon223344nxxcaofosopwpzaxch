@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Flame } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export function MiningSection() {
-  const [balance, setBalance] = useState(1250340);
+  const [balance, setBalance] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const miningRate = 13.78; // tokens per second
+    const miningRate = 0.001; // tokens per second
     const interval = setInterval(() => {
       setBalance((prev) => prev + miningRate / 10);
     }, 100);
@@ -27,14 +27,14 @@ export function MiningSection() {
         <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse"></div>
         <div className="absolute inset-2 bg-primary/20 rounded-full animate-pulse delay-200"></div>
         <div className="relative z-10 w-48 h-48 bg-card rounded-full flex items-center justify-center shadow-2xl">
-          <Flame className="w-20 h-20 text-accent" />
+          <Zap className="w-20 h-20 text-accent" />
         </div>
       </div>
 
       <div className="text-center space-y-4">
         <p className="text-muted-foreground">Your Balance</p>
         <h1 className="font-headline text-5xl font-bold tracking-tighter transition-all duration-300">
-          {Math.floor(balance).toLocaleString()}
+          {balance.toFixed(3)}
         </h1>
       </div>
 
