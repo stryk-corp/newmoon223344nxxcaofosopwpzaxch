@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { tiers } from '@/lib/tiers';
 import type { TierName } from '@/lib/types';
+import { StrykLogo } from '@/components/logo';
 
 export default function ProfilePage() {
   const user = users[3]; // Using 'AdminUser' as the example logged-in user
@@ -41,8 +42,10 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="items-center">
               <Avatar className="w-24 h-24 mb-4">
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                {/* The user wants to use the Stryk logo instead of a user-specific avatar */}
+                <div className="w-full h-full flex items-center justify-center bg-card rounded-full">
+                  <StrykLogo className="w-16 h-16 text-accent" />
+                </div>
               </Avatar>
               <CardTitle className="text-2xl font-headline">{user.name}</CardTitle>
               <CardDescription>{userTier} Tier</CardDescription>
