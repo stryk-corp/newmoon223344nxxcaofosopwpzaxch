@@ -41,7 +41,7 @@ export default function Home() {
             </p>
           </CardContent>
         </Card>
-        <Card className="sm:col-span-2 lg:col-span-1 bg-primary/20 border-accent/50 flex flex-col justify-center items-start">
+        <Card className="sm:col-span-2 lg:col-span-1 bg-primary/20 border-accent/50 flex flex-col justify-center items-center sm:items-start">
             <CardHeader>
                 <CardTitle>View All Tasks</CardTitle>
             </CardHeader>
