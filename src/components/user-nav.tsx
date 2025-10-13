@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useAuth, useUser } from '@/firebase';
-import { signOut, signInWithCustomToken } from 'firebase/auth';
+import { signOut, signInAnonymously } from 'firebase/auth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { StrykLogo } from './logo';
 import { LogOut } from 'lucide-react';
@@ -18,7 +18,6 @@ import { Skeleton } from './ui/skeleton';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useEffect } from 'react';
-import { getAuth, signInAnonymously } from 'firebase/auth';
 
 async function handleSignOut(auth: any) {
     try {
@@ -28,48 +27,21 @@ async function handleSignOut(auth: any) {
     }
 }
 
-// This would typically be a server-side action for security
-async function getCustomToken(walletAddress: string) {
-    // In a real app, you'd send the walletAddress to your backend,
-    // verify ownership (e.g. by having the user sign a message),
-    // and then use the Firebase Admin SDK to create a custom token.
-    // For this demo, we'll just log a message.
-    console.log("In a real app, a custom token would be generated for:", walletAddress);
-    // As we can't generate a real custom token on the client,
-    // we'll fall back to anonymous sign-in for demonstration.
-    // This allows Firestore rules based on UID to still work.
-    const auth = getAuth();
-    const userCredential = await signInAnonymously(auth);
-    return userCredential.user.uid; // This is not a custom token, but works for the demo
-}
-
-
 export function UserNav() {
   const { user, loading } = useUser();
   const auth = useAuth();
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, disconnect } = useWallet();
 
   useEffect(() => {
-    if (connected && publicKey && !user) {
-      const walletAddress = publicKey.toBase58();
-      
-      // Since we cannot securely generate a custom token on the client,
-      // we'll use anonymous sign-in as a stand-in to get a Firebase UID.
-      // In a real app, you would replace this with a call to your backend
-      // which verifies wallet ownership and returns a real custom token.
-      const auth = getAuth();
-      signInAnonymously(auth)
-        .then(() => {
-          console.log('Signed in anonymously as a stand-in for custom auth.');
-        })
-        .catch((error) => {
+    if (connected && publicKey && !user && auth) {
+      // Use anonymous sign-in as a stand-in for custom auth for this demo.
+      // This provides a Firebase UID to associate with the wallet.
+      signInAnonymously(auth).catch((error) => {
           console.error('Anonymous sign-in for custom auth demo failed', error);
-        });
-
-    } else if (!connected && user) {
-        if (auth) {
-            signOut(auth);
-        }
+      });
+    } else if (!connected && user && auth) {
+        // If wallet disconnects, sign out from Firebase as well.
+        signOut(auth);
     }
   }, [connected, publicKey, user, auth]);
 
@@ -85,6 +57,13 @@ export function UserNav() {
   }
 
   const truncatedId = `${publicKey.toBase58().substring(0, 6)}...${publicKey.toBase58().substring(publicKey.toBase58().length - 4)}`;
+
+  const handleFullSignOut = async () => {
+    if (auth) {
+        await handleSignOut(auth);
+    }
+    await disconnect();
+  }
 
   return (
     <div className='flex items-center gap-4'>
@@ -109,9 +88,9 @@ export function UserNav() {
             </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleSignOut(auth)}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out & Disconnect</span>
+            <DropdownMenuItem onClick={handleFullSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out & Disconnect</span>
             </DropdownMenuItem>
         </DropdownMenuContent>
         </DropdownMenu>

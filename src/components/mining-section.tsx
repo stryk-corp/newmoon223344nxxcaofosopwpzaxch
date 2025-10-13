@@ -5,15 +5,17 @@ import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { tiers } from '@/lib/tiers';
 import type { User } from '@/lib/types';
-import { doc, updateDoc, increment, setDoc } from 'firebase/firestore';
-import { useDoc, useFirestore } from '@/firebase';
+import { doc, updateDoc, increment } from 'firebase/firestore';
+import { useDoc, useFirestore, useUser } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
-export function MiningSection({ user }: { user: any }) {
+export function MiningSection({ user: authUser }: { user: any }) {
   const firestore = useFirestore();
-  const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const userDocRef = useMemo(() => (authUser ? doc(firestore, 'users', authUser.uid) : null), [firestore, authUser]);
   const { data: userProfile, loading } = useDoc<User>(userDocRef);
 
-  const [balance, setBalance] = useState(userProfile?.balance || 0);
+  const [balance, setBalance] = useState(0);
   const [progress, setProgress] = useState(0);
   const miningRate = 0.001; // tokens per second
 
@@ -31,44 +33,53 @@ export function MiningSection({ user }: { user: any }) {
 
   // Update balance via mining rate and update firestore document
   useEffect(() => {
-    if (!user || !userProfile) return; // Don't run if user or profile is not loaded
+    if (!authUser || !userProfile) return; // Don't run if user or profile is not loaded
 
     const firestoreUpdateInterval = 5000; // ms
     let accumulatedBalance = 0;
 
-    const interval = setInterval(() => {
+    const visualUpdateInterval = setInterval(() => {
       setBalance((prevBalance) => prevBalance + miningRate);
       accumulatedBalance += miningRate;
     }, 1000);
 
     const firestoreUpdate = setInterval(() => {
       if (userDocRef && accumulatedBalance > 0) {
-        updateDoc(userDocRef, { balance: increment(accumulatedBalance) }).catch(err => {
-            console.error("Failed to update balance:", err);
-            // If the document doesn't exist, it might have been deleted.
-            // We could try to recreate it, but for now, we'll just log the error.
-        });
-        accumulatedBalance = 0;
+        const amountToUpdate = accumulatedBalance;
+        accumulatedBalance = 0; // Reset before async operation
+        updateDoc(userDocRef, { balance: increment(amountToUpdate) })
+            .catch(err => {
+                console.error("Failed to update balance:", err);
+                const permissionError = new FirestorePermissionError({
+                  path: userDocRef.path,
+                  operation: 'update',
+                  requestResourceData: { balance: `increment(${amountToUpdate})` }
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            });
       }
     }, firestoreUpdateInterval);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(visualUpdateInterval);
       clearInterval(firestoreUpdate);
        if (userDocRef && accumulatedBalance > 0) {
-        updateDoc(userDocRef, { balance: increment(accumulatedBalance) }).catch(err => {
+        const amountToUpdate = accumulatedBalance;
+        updateDoc(userDocRef, { balance: increment(amountToUpdate) }).catch(err => {
             console.error("Failed to update balance on cleanup:", err);
         });
       }
     };
-  }, [user, userProfile, userDocRef, miningRate]);
+  }, [authUser, userProfile, userDocRef, miningRate]);
   
   useEffect(() => {
-    if (nextTier) {
+    if (nextTier && balance > 0) {
       const tierProgress = (balance / nextTier.maxBalance) * 100;
       setProgress(Math.min(tierProgress, 100));
-    } else {
+    } else if (!nextTier) {
       setProgress(100);
+    } else {
+      setProgress(0);
     }
   }, [balance, nextTier]);
 
@@ -76,7 +87,7 @@ export function MiningSection({ user }: { user: any }) {
     return <div>Loading mining data...</div>
   }
 
-  if (!user) {
+  if (!authUser) {
     return (
         <div className="w-full max-w-md mx-auto flex flex-col items-center gap-8 py-12">
             <div className="text-center space-y-4">
