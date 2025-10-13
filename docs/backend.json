@@ -52,6 +52,21 @@
         "referralCode": {
           "type": "string",
           "description": "The user's unique referral code."
+        },
+        "referredBy": {
+          "type": "string",
+          "description": "The referral code of the user who referred this user."
+        },
+        "referrals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of user IDs that this user has referred."
+        },
+        "referralCount": {
+            "type": "number",
+            "description": "The number of users this user has referred."
         }
       },
       "required": ["name", "balance", "tier", "ipAddress", "status", "referralCode", "miningRate"]

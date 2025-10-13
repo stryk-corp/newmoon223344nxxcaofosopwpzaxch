@@ -20,6 +20,9 @@ export const UserSchema = z.object({
   miningActivity: z.array(z.number()),
   referralCode: z.string(),
   completedTasks: z.array(z.string()).optional(),
+  referredBy: z.string().optional(),
+  referrals: z.array(z.string()).optional(),
+  referralCount: z.number().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;
