@@ -10,7 +10,7 @@ import { FirestorePermissionError } from '../errors';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 // Function to create a new user document in Firestore
-async function createUserDocument(firestore: any, user: FirebaseUser, walletPublicKey?: string | null) {
+async function createUserDocument(firestore: any, user: FirebaseUser, walletPublicKey: string) {
   const userRef = doc(firestore, 'users', user.uid);
   
   try {
@@ -18,33 +18,37 @@ async function createUserDocument(firestore: any, user: FirebaseUser, walletPubl
 
     if (!userSnap.exists()) {
       const newUser: Omit<User, 'id'> = {
-        name: walletPublicKey || `user_${user.uid.substring(0, 5)}`,
+        name: walletPublicKey,
         avatarUrl: '',
         balance: 0,
         tier: 'Bronze',
         ipAddress: '0.0.0.0', // Placeholder, should be set server-side in a real app
         status: 'active',
         miningActivity: [],
-        referralCode: walletPublicKey || user.uid.substring(0, 8),
+        referralCode: walletPublicKey,
         completedTasks: [],
       };
 
-      await setDoc(userRef, newUser);
-    }
-  } catch (error: any) {
-      // Check if it's a permission error, otherwise just log it.
-      // We are creating the user, so we expect to have permission.
-      // If we don't, it's a developer error in the security rules.
-      if (error.code === 'permission-denied') {
+      await setDoc(userRef, newUser).catch((error) => {
+        // This is a critical error if it happens on user creation.
+        // It's likely a security rule issue.
         const permissionError = new FirestorePermissionError({
-            path: userRef.path,
-            operation: 'create',
-            requestResourceData: 'SECURITY_RULE_VIOLATION',
+          path: userRef.path,
+          operation: 'create',
+          requestResourceData: newUser,
         });
         errorEmitter.emit('permission-error', permissionError);
-      } else {
-        console.error("Error creating user document:", error);
-      }
+        console.error("Error setting user document:", error);
+      });
+    }
+  } catch (error: any) {
+      // This would typically be a network or permissions error on getDoc
+      const permissionError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'get',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+      console.error("Error checking user document:", error);
   }
 }
 
@@ -61,21 +65,30 @@ export function useUser() {
         setLoading(false);
         return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-      if (authUser) {
-        setUser(authUser);
-        // Pass the wallet public key when creating the document
-        createUserDocument(firestore, authUser, publicKey?.toBase58()).then(() => {
-            setLoading(false);
-        });
-      } else {
-        setUser(null);
+    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+      setUser(authUser); // Set Firebase user immediately for auth state
+      if (!authUser) {
         setLoading(false);
       }
+      // The rest of the logic (document creation) will be handled by the next effect
     });
 
     return () => unsubscribe();
-  }, [auth, firestore, publicKey]);
+  }, [auth, firestore]);
+
+  useEffect(() => {
+    // This effect runs when either the firebase user or public key changes.
+    // We only proceed to create the document if we have BOTH.
+    if (user && publicKey && firestore) {
+      createUserDocument(firestore, user, publicKey.toBase58()).then(() => {
+        setLoading(false);
+      });
+    } else if (!user) {
+      // If there's no firebase user, we're not loading anymore.
+      setLoading(false);
+    }
+  }, [user, publicKey, firestore]);
+
 
   return { user, loading };
 }
