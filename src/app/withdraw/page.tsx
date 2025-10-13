@@ -27,7 +27,7 @@ const withdrawalSchema = z.object({
 });
 
 export default function WithdrawPage() {
-  const [withdrawalsEnabled] = useState(true); // Admin-controlled toggle
+  const [withdrawalsEnabled] = useState(false); // Admin-controlled toggle
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof withdrawalSchema>>({
