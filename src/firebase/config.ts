@@ -3,10 +3,10 @@
 
 // To change the Firebase project, use the "Change Firebase Project" command.
 export const firebaseConfig = {
-  "apiKey": "placeholder-api-key",
-  "authDomain": "placeholder-auth-domain",
-  "projectId": "placeholder-project-id",
-  "storageBucket": "placeholder-storage-bucket",
-  "messagingSenderId": "placeholder-messaging-sender-id",
-  "appId": "placeholder-app-id"
+  "apiKey": "AIzaSyAet7Q64K-gUBjdkTPe8j2TPvB9bAuNch0",
+  "authDomain": "stryknet1.firebaseapp.com",
+  "projectId": "stryknet1",
+  "storageBucket": "stryknet1.appspot.com",
+  "messagingSenderId": "194015369680",
+  "appId": "1:194015369680:web:619d06716cc4a5da9741d5"
 };
