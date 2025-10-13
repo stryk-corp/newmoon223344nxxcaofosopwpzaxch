@@ -4,6 +4,7 @@ import { Sidebar, SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster';
 import { MainNav } from '@/components/main-nav';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { UserNav } from '@/components/user-nav';
 
 export const metadata: Metadata = {
   title: 'Stryk Mining Platform',
@@ -36,6 +37,11 @@ export default function RootLayout({
               <MainNav />
             </Sidebar>
             <SidebarInset>
+              <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-md sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+                <div className="ml-auto">
+                  <UserNav />
+                </div>
+              </header>
               <div className="min-h-screen">
                 {children}
               </div>
