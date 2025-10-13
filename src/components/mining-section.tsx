@@ -5,13 +5,13 @@ import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { tiers } from '@/lib/tiers';
 import type { User } from '@/lib/types';
-import { doc, updateDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { useDoc, useFirestore } from '@/firebase';
 
 export function MiningSection({ user }: { user: any }) {
   const firestore = useFirestore();
   const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
-  const { data: userProfile, loading } = useDoc(userDocRef);
+  const { data: userProfile, loading } = useDoc<User>(userDocRef);
 
   const [balance, setBalance] = useState(userProfile?.balance || 0);
   const [progress, setProgress] = useState(0);
@@ -21,6 +21,8 @@ export function MiningSection({ user }: { user: any }) {
   useEffect(() => {
     if (userProfile) {
       setBalance(userProfile.balance);
+    } else {
+      setBalance(0);
     }
   }, [userProfile]);
 
@@ -29,20 +31,23 @@ export function MiningSection({ user }: { user: any }) {
 
   // Update balance via mining rate and update firestore document
   useEffect(() => {
-    if (!user) return;
+    if (!user || !userProfile) return; // Don't run if user or profile is not loaded
+
     const firestoreUpdateInterval = 5000; // ms
     let accumulatedBalance = 0;
 
     const interval = setInterval(() => {
-      const newBalance = balance + miningRate;
+      setBalance((prevBalance) => prevBalance + miningRate);
       accumulatedBalance += miningRate;
-      setBalance(newBalance);
-
     }, 1000);
 
     const firestoreUpdate = setInterval(() => {
       if (userDocRef && accumulatedBalance > 0) {
-        updateDoc(userDocRef, { balance: increment(accumulatedBalance) });
+        updateDoc(userDocRef, { balance: increment(accumulatedBalance) }).catch(err => {
+            console.error("Failed to update balance:", err);
+            // If the document doesn't exist, it might have been deleted.
+            // We could try to recreate it, but for now, we'll just log the error.
+        });
         accumulatedBalance = 0;
       }
     }, firestoreUpdateInterval);
@@ -51,10 +56,12 @@ export function MiningSection({ user }: { user: any }) {
       clearInterval(interval);
       clearInterval(firestoreUpdate);
        if (userDocRef && accumulatedBalance > 0) {
-        updateDoc(userDocRef, { balance: increment(accumulatedBalance) });
+        updateDoc(userDocRef, { balance: increment(accumulatedBalance) }).catch(err => {
+            console.error("Failed to update balance on cleanup:", err);
+        });
       }
     };
-  }, [balance, userDocRef, user]);
+  }, [user, userProfile, userDocRef, miningRate]);
   
   useEffect(() => {
     if (nextTier) {
