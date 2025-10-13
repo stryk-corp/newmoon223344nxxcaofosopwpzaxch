@@ -1,14 +1,23 @@
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserTable } from '@/components/admin/user-table';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-
-// This will be replaced with Firestore access
-const users: any[] = [];
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { collection, getFirestore } from 'firebase/firestore';
+import type { User } from '@/lib/types';
 
 export default function AdminPage() {
-  const allUsers = [...users];
+  const firestore = getFirestore();
+  const { data: users, loading } = useCollection<User>(firestore ? collection(firestore, 'users') : null);
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  const allUsers = users || [];
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -43,7 +52,7 @@ export default function AdminPage() {
                     Allow users to request withdrawals of their tokens.
                   </p>
                 </div>
-                <Switch defaultChecked={true} />
+                <Switch defaultChecked={false} />
               </div>
                <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">

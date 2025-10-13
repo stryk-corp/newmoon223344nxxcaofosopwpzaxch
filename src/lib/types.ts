@@ -10,7 +10,7 @@ export type Tier = {
 export const UserSchema = z.object({
   id: z.string(),
   name: z.string(),
-  avatarUrl: z.string().url(),
+  avatarUrl: z.string().url().optional(),
   balance: z.number(),
   tier: z.enum(['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond']),
   ipAddress: z.string(),
@@ -18,6 +18,7 @@ export const UserSchema = z.object({
   suspensionEndDate: z.string().optional(),
   miningActivity: z.array(z.number()),
   referralCode: z.string(),
+  completedTasks: z.array(z.string()).optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

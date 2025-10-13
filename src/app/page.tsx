@@ -1,3 +1,5 @@
+'use client';
+
 import { MiningSection } from '@/components/mining-section';
 import {
   Card,
@@ -8,11 +10,19 @@ import {
 import { ArrowRight, Gift, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useUser } from '@/firebase/auth/use-user';
+
 
 export default function Home() {
+  const { user, loading } = useUser();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex flex-col items-center p-4 md:p-8">
-      <MiningSection />
+      <MiningSection user={user} />
 
       <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
         <Card>

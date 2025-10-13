@@ -10,38 +10,31 @@ import { Input } from '@/components/ui/input';
 import { tiers } from '@/lib/tiers';
 import type { TierName } from '@/lib/types';
 import { StrykLogo } from '@/components/logo';
+import { useUser } from '@/firebase/auth/use-user';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { doc, getFirestore } from 'firebase/firestore';
 
-// This will be replaced with Firestore access
-const user = {
-    id: 'usr_4',
-    name: 'AdminUser',
-    avatarUrl: 'https://picsum.photos/seed/avatar4/100/100',
-    balance: 540321,
-    tier: 'Silver',
-    ipAddress: '10.0.0.1',
-    status: 'active',
-    miningActivity: [],
-    referralCode: 'REF-ADMIN',
-  };
 
 export default function ProfilePage() {
+  const { user, loading: userLoading } = useUser();
+  const firestore = getFirestore();
+  const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const { data: userProfile, loading: profileLoading } = useDoc(userDocRef);
+
   const [wallet, setWallet] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-  const referralLink = `https://mine.drstryk.com/join?ref=${user.referralCode}`;
+
+  const referralLink = userProfile ? `https://mine.drstryk.com/join?ref=${userProfile.referralCode}` : '';
 
   const userTier: TierName = useMemo(() => {
-    return tiers.find(tier => user.balance < tier.maxBalance)?.name || 'Diamond';
-  }, [user.balance]);
+    if (!userProfile) return 'Bronze';
+    return tiers.find(tier => userProfile.balance < tier.maxBalance)?.name || 'Diamond';
+  }, [userProfile]);
 
   const handleConnectWallet = () => {
-    // For a normal user, this would be their actual wallet address.
-    // For admin, we can use a placeholder.
-    if (user.name === 'AdminUser') {
-        setWallet('admin.wallet.connected');
-    } else {
-        const fullWallet = `4qaFa3W3Nq2JpLwG7h7fG...`; // example full address
-        setWallet(fullWallet);
+    if (user?.uid) {
+        setWallet(user.uid);
     }
   };
 
@@ -52,6 +45,14 @@ export default function ProfilePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  if (userLoading || profileLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!user || !userProfile) {
+    return <div>Please log in to see your profile.</div>;
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="font-headline text-3xl md:text-4xl font-bold mb-8">Profile</h1>
@@ -60,17 +61,16 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="items-center">
               <Avatar className="w-24 h-24 mb-4">
-                {/* The user wants to use the Stryk logo instead of a user-specific avatar */}
                 <div className="w-full h-full flex items-center justify-center bg-card rounded-full">
                   <StrykLogo className="w-16 h-16 text-accent" />
                 </div>
               </Avatar>
-              <CardTitle className="text-2xl font-headline">{user.name}</CardTitle>
+              <CardTitle className="text-2xl font-headline truncate max-w-full px-4">{userProfile.name}</CardTitle>
               <CardDescription>{userTier} Tier</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <div className="font-headline text-3xl font-bold">
-                {user.balance.toLocaleString()}
+                {userProfile.balance.toLocaleString()}
               </div>
               <p className="text-sm text-muted-foreground">Current Balance</p>
             </CardContent>

@@ -1,10 +1,15 @@
 'use server';
 
 import { z } from 'zod';
+import { initializeFirebase } from '@/firebase';
+import { doc, updateDoc, arrayUnion, increment } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth/web-extension';
+import { revalidatePath } from 'next/cache';
 
 const completeTaskSchema = z.object({
   taskId: z.string(),
   reward: z.coerce.number(),
+  userId: z.string(),
 });
 
 type CompleteTaskInput = z.infer<typeof completeTaskSchema>;
@@ -17,17 +22,31 @@ export async function completeTaskAction(input: CompleteTaskInput) {
       message: 'Invalid task data.',
     };
   }
-  
-  // In a real app, you would:
-  // 1. Verify the user has not already completed this task.
-  // 2. Verify the task completion (e.g., via an API call to X/Telegram).
-  // 3. Add the reward to the user's balance in the database.
-  // 4. Record the task completion for the user.
-  
-  console.log(`Task ${validatedFields.data.taskId} completed, reward ${validatedFields.data.reward} pseudo-awarded.`);
 
-  return {
-    message: `You earned ${validatedFields.data.reward.toLocaleString()} tokens!`,
-    taskId: validatedFields.data.taskId,
-  };
+  const { taskId, reward, userId } = validatedFields.data;
+  const { firestore } = await initializeFirebase();
+  
+  // In a real app, you would also:
+  // 1. Verify the task completion (e.g., via an API call to X/Telegram).
+
+  try {
+    const userRef = doc(firestore, 'users', userId);
+    await updateDoc(userRef, {
+        completedTasks: arrayUnion(taskId),
+        balance: increment(reward)
+    });
+
+    revalidatePath('/tasks');
+
+    return {
+        message: `You earned ${reward.toLocaleString()} tokens!`,
+        taskId: taskId,
+      };
+
+  } catch (error) {
+      console.error("Error completing task:", error);
+      return {
+          message: 'An error occurred while completing the task.'
+      }
+  }
 }

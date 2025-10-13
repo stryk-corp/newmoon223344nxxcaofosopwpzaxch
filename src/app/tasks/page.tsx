@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-
+import { useState, useTransition, useMemo } from 'react';
 import { tasks } from '@/lib/tasks';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,31 +8,61 @@ import { CheckCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { completeTaskAction } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Icon } from '@/components/icons';
+import { useUser } from '@/firebase/auth/use-user';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { User } from '@/lib/types';
+
 
 export default function TasksPage() {
-  const [completedTasks, setCompletedTasks] = useState<string[]>([]);
+  const { user, loading: userLoading } = useUser();
+  const firestore = getFirestore();
+  const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const { data: userProfile, loading: profileLoading } = useDoc<User>(userDocRef);
+
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  
+  const completedTasks = userProfile?.completedTasks || [];
 
   const handleTaskClick = (task: (typeof tasks)[0]) => {
+    if (!user) {
+        toast({
+            title: "Not Logged In",
+            description: "You need to be logged in to complete tasks.",
+            variant: "destructive",
+        })
+        return;
+    }
     if (completedTasks.includes(task.id)) return;
 
     setPendingTaskId(task.id);
     startTransition(async () => {
-      const result = await completeTaskAction({ taskId: task.id, reward: task.reward });
+      const result = await completeTaskAction({ taskId: task.id, reward: task.reward, userId: user.uid });
       if (result?.message && result?.taskId) {
         toast({
           title: 'Task Completed!',
           description: result.message,
         });
-        setCompletedTasks((prev) => [...prev, result.taskId as string]);
+      } else if (result?.message) {
+        toast({
+            title: 'Error',
+            description: result.message,
+            variant: 'destructive',
+        })
       }
       setPendingTaskId(null);
     });
 
-    window.open(task.link, '_blank', 'noopener,noreferrer');
+    if (task.link !== '/profile') {
+        window.open(task.link, '_blank', 'noopener,noreferrer');
+    }
   };
+  
+  if (userLoading || profileLoading) {
+      return <div>Loading...</div>
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-8">

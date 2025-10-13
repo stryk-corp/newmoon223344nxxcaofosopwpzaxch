@@ -3,6 +3,7 @@ import './globals.css';
 import { Sidebar, SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import { MainNav } from '@/components/main-nav';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'Stryk Mining Platform',
@@ -29,16 +30,18 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <Sidebar variant="inset" collapsible="icon">
-            <MainNav />
-          </Sidebar>
-          <SidebarInset>
-            <div className="min-h-screen">
-              {children}
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
+        <FirebaseClientProvider>
+          <SidebarProvider>
+            <Sidebar variant="inset" collapsible="icon">
+              <MainNav />
+            </Sidebar>
+            <SidebarInset>
+              <div className="min-h-screen">
+                {children}
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

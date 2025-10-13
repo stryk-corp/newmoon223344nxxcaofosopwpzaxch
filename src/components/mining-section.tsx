@@ -1,25 +1,59 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { tiers } from '@/lib/tiers';
+import type { User } from '@/lib/types';
+import { doc, getFirestore, updateDoc, increment } from 'firebase/firestore';
+import { useDoc } from '@/firebase/firestore/use-doc';
 
-export function MiningSection() {
-  const [balance, setBalance] = useState(0);
+export function MiningSection({ user }: { user: any }) {
+  const firestore = getFirestore();
+  const userDocRef = useMemo(() => (user ? doc(firestore, 'users', user.uid) : null), [firestore, user]);
+  const { data: userProfile, loading } = useDoc(userDocRef);
+
+  const [balance, setBalance] = useState(userProfile?.balance || 0);
   const [progress, setProgress] = useState(0);
   const miningRate = 0.001; // tokens per second
+
+  // Set initial balance from profile
+  useEffect(() => {
+    if (userProfile) {
+      setBalance(userProfile.balance);
+    }
+  }, [userProfile]);
 
   const currentTier = tiers.find(tier => balance < tier.maxBalance) || tiers[tiers.length - 1];
   const nextTier = tiers.find(tier => balance < tier.maxBalance);
 
+  // Update balance via mining rate and update firestore document
   useEffect(() => {
+    const firestoreUpdateInterval = 5000; // ms
+    let accumulatedBalance = 0;
+
     const interval = setInterval(() => {
-      setBalance((prev) => prev + miningRate);
+      const newBalance = balance + miningRate;
+      accumulatedBalance += miningRate;
+      setBalance(newBalance);
+
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+    const firestoreUpdate = setInterval(() => {
+      if (userDocRef && accumulatedBalance > 0) {
+        updateDoc(userDocRef, { balance: increment(accumulatedBalance) });
+        accumulatedBalance = 0;
+      }
+    }, firestoreUpdateInterval);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(firestoreUpdate);
+       if (userDocRef && accumulatedBalance > 0) {
+        updateDoc(userDocRef, { balance: increment(accumulatedBalance) });
+      }
+    };
+  }, [balance, userDocRef]);
   
   useEffect(() => {
     if (nextTier) {
@@ -29,6 +63,10 @@ export function MiningSection() {
       setProgress(100);
     }
   }, [balance, nextTier]);
+
+  if (loading) {
+    return <div>Loading mining data...</div>
+  }
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col items-center gap-8 py-12">

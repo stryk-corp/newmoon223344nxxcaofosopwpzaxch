@@ -2,17 +2,26 @@
 
 import { detectFraud } from '@/ai/flows/fraud-detection';
 import { revalidatePath } from 'next/cache';
+import { initializeFirebase } from '@/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import type { User } from '@/lib/types';
 
-// This will be replaced with Firestore access
-const users: any[] = [];
 
+async function getFirestore() {
+    const { firestore } = await initializeFirebase();
+    return firestore;
+}
 
 export async function checkFraudAction(userId: string) {
   try {
-    const user = users.find((u) => u.id === userId);
-    if (!user) {
+    const firestore = await getFirestore();
+    const userRef = doc(firestore, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
       return { success: false, message: 'User not found.' };
     }
+    const user = { id: userSnap.id, ...userSnap.data() } as User;
 
     const result = await detectFraud({
       userId: user.id,
@@ -22,7 +31,6 @@ export async function checkFraudAction(userId: string) {
     });
 
     if (result.isSuspicious) {
-        // Optionally, auto-ban or flag user
         console.log(`Suspicious activity for ${user.name}: ${result.reason}`);
     }
 
@@ -35,18 +43,19 @@ export async function checkFraudAction(userId: string) {
 
 export async function updateUserStatusAction(userId: string, status: 'active' | 'suspended' | 'banned') {
     try {
-        const user = users.find((u) => u.id === userId);
-        if (!user) {
-            return { success: false, message: 'User not found.' };
-        }
-        
-        user.status = status;
+        const firestore = await getFirestore();
+        const userRef = doc(firestore, 'users', userId);
+
+        const updateData: Partial<User> = { status };
+
         if (status === 'suspended') {
             const fiveDays = 5 * 24 * 60 * 60 * 1000;
-            user.suspensionEndDate = new Date(Date.now() + fiveDays).toISOString();
+            updateData.suspensionEndDate = new Date(Date.now() + fiveDays).toISOString();
         } else {
-            user.suspensionEndDate = undefined;
+            updateData.suspensionEndDate = undefined;
         }
+
+        await updateDoc(userRef, updateData);
 
         console.log(`User ${userId} status updated to ${status}`);
         revalidatePath('/admin');
