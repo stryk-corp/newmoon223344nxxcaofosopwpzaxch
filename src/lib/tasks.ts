@@ -3,11 +3,11 @@ import type { Task } from '@/lib/types';
 export const tasks: Task[] = [
   {
     id: 'task_1',
-    title: 'Follow us on X',
+    title: 'Subscribe on Youtube',
     description: 'Stay up to date with the latest announcements.',
     reward: 100,
-    link: 'https://x.com/firebase',
-    icon: 'Twitter',
+    link: 'https://youtube.com/@codemerchant',
+    icon: 'Youtube',
   },
   {
     id: 'task_2',
